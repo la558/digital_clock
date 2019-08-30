@@ -13,6 +13,13 @@ num_pixels = 7
 #sleep time
 wait = 0.3
 
+white = (255, 255, 255)
+red = (255, 0, 0)
+green = (0, 255, 0)
+blue = (0, 0, 255)
+black = (0, 0, 0)
+colors = [white, red, green, blue, black]
+
 ORDER = neopixel.GRB
 
 pixels = neopixel.NeoPixel(pixel_pin, num_pixels, brightness=0.2, auto_write=False,pixel_order=ORDER)
@@ -60,3 +67,9 @@ print("pixel 6")
 pixels[6] = (255, 0, 0)
 pixels.show()
 time.sleep(wait)
+
+# --- turn on all lights and change from 5 different colors
+for i in range(len(colors)):
+    pixels.fill((colors[i]))
+    pixels.show()
+    time.sleep(wait*3)
