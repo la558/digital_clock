@@ -5,4 +5,4 @@ The main library comes from Adafruit
 
 It is developed to be hunged on a wall in the MakerHub room so, people in the room can see the current time.
 
-The only file that's needed to run the clock is 'startlights01.py' the others are just for testing purposes
+The only file that's needed to run the clock is 'startlights00.py' the others are just for testing purposes
