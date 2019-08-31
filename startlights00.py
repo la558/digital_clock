@@ -1,11 +1,11 @@
 #import libraries
 import board
 import neopixel
-import array as arr
+#import array as arr
 
 import datetime
 import time
-from time import gmtime, strftime
+#from time import gmtime, strftime
 
 print("Starting Digital Clock")
 
@@ -25,7 +25,7 @@ num_pixels = 30
 # Pause time
 wait = 0.25
 
-# The order of the pixel colors -
+# Set neopixel's color order
 ORDER = neopixel.GRB
 
 # Set attributes to pixels
@@ -61,22 +61,42 @@ black = (0, 0, 0)
 colors = [white, red, green, blue, black]
 
 # --- turn on all lights and change from 5 different colors
-for i in range(len(colors)):
-    pixels.fill((colors[i]))
-    pixels.show()
-    time.sleep(wait*3)
+def check_colors():
+    for i in range(len(colors)):
+        pixels.fill((colors[i]))
+        pixels.show()
+        time.sleep(wait*3)
+        
+# --- check digit lights - show each number (0-9) in each of digit (0-3)
+def check_digits():
+    for s in range(len(d)):
+        for n in range(len(digit)):
+            time.sleep(wait)
+            pixels.fill((0, 0, 0))
+            pixels.show()
+            time.sleep(wait)
+            a = str(n) + ") -- ("
+            for m in range(len(digit[n])):
+                a= a + str((digit[n][m])) + ","
+                if(digit[n][m] == "on"):
+                    pixels[m + d[s][1]] = white
+                pixels.show()
+            a = a + ")"
+            #print(a)
+        time.sleep(wait)
+    time.sleep(wait*2)    
 
 # --- returns at what time shall the countdown start
-def check_weekday(weekday):
-    if (weekday == 0 or weekday == 1 or weekday == 2 or weekday ==3):
+def check_weekday(tweekday):
+    if (tweekday == 0 or tweekday == 1 or tweekday == 2 or tweekday ==3):
         startcountdown = 7
-    elif (weekday == 4 or weekday == 5):
+    elif (tweekday == 4 or tweekday == 5):
         startcountdown = 4
     else:
         startcountdown = 0    
     return startcountdown;
     
-# --- count down from 10 to 0 (to be displayed on the last 10 min of the last hour)
+# --- count down from 10 min and 0 seconds to 0 seconds (to be displayed on the last 10 min of the last hour)
 def count_down():         
     d0 = 1
     d1 = 0
@@ -103,26 +123,6 @@ def count_down():
         time.sleep(secsleep)
         display_current_time(d0, d1, d2, d3)
 
-        
-# --- check digit lights - show each number (0-9) in each of digit (0-3)
-def check_digits():
-    for s in range(len(d)):
-        for n in range(len(digit)):
-            time.sleep(wait)
-            pixels.fill((0, 0, 0))
-            pixels.show()
-            time.sleep(wait)
-            a = str(n) + ") -- ("
-            for m in range(len(digit[n])):
-                a= a + str((digit[n][m])) + ","
-                if(digit[n][m] == "on"):
-                    pixels[m + d[s][1]] = white
-                pixels.show()
-            a = a + ")"
-            #print(a)
-        time.sleep(wait)
-    time.sleep(wait*2)    
-
 # Get the hour where the count down shall start at
 startcountdownat = check_weekday(weekday)
 
@@ -139,18 +139,19 @@ def turn_all_digits_as_8():
             pixels[digit[8][p]+ numdig] = white 
             pixels.show()
 
-
-# --- get current time
+# Returns current time as an array of values: 
+#           currentDT, weekday, hours, minutes, seconds, milsec, startcountdown
+#              0         1        2       3        4       5          6
 def get_current_time():
     currentDT = datetime.datetime.now()
-    weekday = int(datetime.datetime.today().weekday())
+    gct_weekday = int(datetime.datetime.today().weekday())
     hours = int(currentDT.strftime('%I'))
     minutes = int(currentDT.strftime('%M'))
     seconds = int(currentDT.strftime('%S'))
     milsec = int(currentDT.strftime('%f'))
-    startcountdown = check_weekday(weekday)
+    startcountdown = check_weekday(gct_weekday)
     
-    return [currentDT, weekday, hours, minutes, seconds, milsec, startcountdown];
+    return [currentDT, gct_weekday, hours, minutes, seconds, milsec, startcountdown];
     #          0         1        2       3        4       5          6
 
 # --- display current time
@@ -168,11 +169,9 @@ def display_current_time(d0, d1, d2, d3):
                 else:
                     pixels[m + numdig] = black
             pixels.show()
-    
-
 
 # --- set value for each digit with the current time
-def set_digit_values(hours, minutes, seconds):
+def set_digit_values(hours, minutes): #, seconds):
     #set digits 3 and 4 for minutes
     if (minutes < 10):
         d[2][0] = 0         
@@ -180,6 +179,7 @@ def set_digit_values(hours, minutes, seconds):
     else:
         d[2][0] = int(str(minutes)[0:1])
         d[3][0] = int(str(minutes)[1:2])
+    
     #set digits 1 and 2 for hours       
     if (hours > 12):
         hours = hours - 12   
@@ -219,8 +219,11 @@ def get_time_to_sleep():
     ttsleep = (999990 - milisec[5])*.000001
     return ttsleep
 
+# check neopixel lights can trasnform into different colors (white, red, green, blue, & black)
+# lap check_colors()
+
 # check all numbers (0-9) of the 4 digits
-check_digits()    
+# lap check_digits()    
 
 # Returns current time as an array of values: 
 #           currentDT, weekday, hours, minutes, seconds, milsec, startcountdown
@@ -231,15 +234,16 @@ currentTime = get_current_time()
 timetosleep = (999990 - currentTime[5])*.000001
 time.sleep(timetosleep)
 
-# Calling set_digit_values function; passing hours, minutes, and seconds          
-set_digit_values(currentTime[2], currentTime[3], currentTime[4])
+# Calling set_digit_values function; passing hours and minutes         
+set_digit_values(currentTime[2], currentTime[3])
 
 # set counter as the number of seconds in the current time
 counter = int(datetime.datetime.now().strftime('%S'))
 check = 59
 
 # --- blinking dots & updating digits
-while True:   
+while True:
+    print(counter)
     if (counter > check):
         getHMS = get_current_time()
 
@@ -247,17 +251,19 @@ while True:
         if (getHMS[2] == getHMS[6] and getHMS[3] == 50 ):
             count_down()        
         else:
-            counter = set_digit_values(getHMS[2], getHMS[3], getHMS[4])
-            
+            counter = set_digit_values(getHMS[2], getHMS[3]) #, getHMS[4])
+        
     # turn on
     blinking_dots("on")
-
-    counter += 1  
+    print("on")
+    counter += 1
+    print(counter)
 
     # turn off
     blinking_dots("off")
-
-    counter += 1       
+    print("off")
+    counter += 1
+    print(counter)
 
 
 quit()
