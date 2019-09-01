@@ -1,4 +1,4 @@
-# Digital Clock
+# Digital Clock & Temperautre Display
 
 This python script uses a Raspberry Pi and 30 NeoPixel lights to display current time and local weather temperature.
 The neopixel library comes from Adafruit
